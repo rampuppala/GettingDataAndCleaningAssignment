@@ -12,21 +12,30 @@ if (!require("reshape2")) {
 require("data.table")
 require("reshape2")
 
-# read activity labels
-activity_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")[,2]
 
-# read feautres labels
+# read activity labels, featuer labels, subject, train and test data
+activity_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")[,2]
 features <- read.table("./UCI HAR Dataset/features.txt")[,2]
+
+X_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
+y_train <- read.table("./UCI HAR Dataset/train/y_train.txt")
+
+X_test <- read.table("./UCI HAR Dataset/test/X_test.txt")
+y_test <- read.table("./UCI HAR Dataset/test/y_test.txt")
+
+subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
+subject_train <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 
 # filter mean and standard deviation for each measurement.
 extract_features <- grepl("mean|std", features)
 
-# read X_test & y_test data.
-X_test <- read.table("./UCI HAR Dataset/test/X_test.txt")
-y_test <- read.table("./UCI HAR Dataset/test/y_test.txt")
-subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 
+
+# labeling the dataset with descriptive names from subject
 names(X_test) = features
+names(X_train) = features
+names(subject_train) = "subject"
+names(subject_test) = "subject"
 
 # filter the measurements on the mean and standard deviation for each measurement.
 X_test = X_test[,extract_features]
@@ -34,18 +43,11 @@ X_test = X_test[,extract_features]
 # read activity labels
 y_test[,2] = activity_labels[y_test[,1]]
 names(y_test) = c("Activity_ID", "Activity_Label")
-names(subject_test) = "subject"
+
 
 # bind subject_test, y_test, x_test data
 test_data <- cbind(as.data.table(subject_test), y_test, X_test)
 
-
-X_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
-y_train <- read.table("./UCI HAR Dataset/train/y_train.txt")
-
-subject_train <- read.table("./UCI HAR Dataset/train/subject_train.txt")
-
-names(X_train) = features
 
 # filter the measurements on the mean and standard deviation for each measurement.
 X_train = X_train[,extract_features]
@@ -54,8 +56,6 @@ X_train = X_train[,extract_features]
 y_train[,2] = activity_labels[y_train[,1]]
 names(y_train) = c("Activity_ID", "Activity_Label")
 
-# labeling the dataset with descriptive names from subject
-names(subject_train) = "subject"
 
 # bind subject_train, y_train, x_train data
 train_data <- cbind(as.data.table(subject_train), y_train, X_train)
@@ -70,5 +70,5 @@ melt_data      = melt(data, id = id_labels, measure.vars = data_labels)
 # Apply mean function to dataset using dcast function
 tidy_data   = dcast(melt_data, subject + Activity_Label ~ variable, mean)
 
-write.table(tidy_data, file = "./tidy_data.txt", row.names = false)
+write.csv(tidy_data, file = "./tidy_data.txt", row.names = FALSE)
 
