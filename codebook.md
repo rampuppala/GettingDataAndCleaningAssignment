@@ -8,8 +8,8 @@ output: html_document
 
 
 ## Identifiers
-subject
-Activity_Label
+- subject
+- Activity_Label
 
 ## Measures
 - tBodyAcc-mean()-X
